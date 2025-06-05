@@ -97,10 +97,44 @@ public class Program
                 switch (selector)
                 {
                     case 1:
-                        Console.WriteLine("Введите задачу: ");
-                        string title = Console.ReadLine();
-                        Console.WriteLine("Введите дедлайн в формате ГГГГ-ММ-ДД: ");
-                        DateTime deadline = DateTime.Parse(Console.ReadLine());
+                        string title;
+                        while (true) 
+                        {
+                            Console.WriteLine("Введите задачу: ");
+                            title = Console.ReadLine();
+
+                            if (!string.IsNullOrWhiteSpace(title))
+                            {
+                                break;
+                            }
+                            Console.WriteLine("Название не может быть пустым");
+                        }
+
+                        DateTime deadline;
+                        while (true)
+                        {
+                            Console.WriteLine("Введите дедлайн в формате ГГГГ-ММ-ДД: ");
+                            string input = Console.ReadLine();
+                            if (DateTime.TryParse(input, out deadline))
+                            {
+                                if (deadline.Date < DateTime.Today)
+                                {
+                                    Console.WriteLine("Внимание: дедлайн в прошлом! Все равно бобавать? (y/n)");
+                                    if (Console.ReadLine().ToLower() == "y")
+                                    {
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Неверный формат даты! Используйте ГГГГ-ММ-ДД");
+                            }
+                        }
 
                         repository.AddTask(new TaskItem
                         {
