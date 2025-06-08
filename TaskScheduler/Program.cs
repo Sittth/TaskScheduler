@@ -146,21 +146,48 @@ public class Program
                     case 2:
                         Console.WriteLine("Список задач: ");
 
-                        var tasks = repository.GetAllTasks();
+                        try
+                        {
+                            var tasks = repository.GetAllTasks();
 
-                        if (tasks.Count == 0)
-                        {
-                            Console.WriteLine("Нет задач для отображения");
-                        }
-                        else
-                        {
-                            foreach (var task in tasks)
+                            if (tasks.Count == null)
                             {
-                                Console.WriteLine($"\nID: {task.Id}");
-                                Console.WriteLine($"Задача: {task.Title}");
-                                Console.WriteLine($"Дедлайн: {task.Deadline}");
-                                Console.WriteLine($"Статус: {(task.IsCompleted ? "Выполнена" : "В работе")}");
+                                Console.WriteLine("Ошибка: не удалось получить данные о задачах");
                             }
+
+                            else if (tasks.Count == 0)
+                            {
+                                Console.WriteLine("Нет задач для отображения");
+                            }
+                            else
+                            {
+                                var sortedTasks = tasks
+                                    .OrderBy(t => t.IsCompleted)
+                                    .ThenBy(t => t.Deadline)
+                                    .ToList();
+
+                                foreach (var task in sortedTasks)
+                                {
+                                    ConsoleColor color = task.IsCompleted ? ConsoleColor.Green : task.Deadline < DateTime.Now ? ConsoleColor.Red : ConsoleColor.White;
+
+                                    Console.ForegroundColor = color;
+
+                                    Console.WriteLine($"\nID: {task.Id}");
+                                    Console.WriteLine($"Задача: {task.Title}");
+                                    Console.WriteLine($"Дедлайн: {task.Deadline}");
+                                    Console.WriteLine($"Статус: {(task.IsCompleted ? "Выполнена" : "В работе")}");
+
+                                    if  (!task.IsCompleted && task.Deadline < DateTime.Now)
+                                    {
+                                        Console.WriteLine($"Просрочена на {(DateTime.Now - task.Deadline).Days} дней");
+                                    }
+                                    Console.ResetColor();
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Ошибка при получении задач: {ex.Message}");
                         }
                         break;
 
